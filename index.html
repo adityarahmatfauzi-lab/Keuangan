@@ -25,8 +25,12 @@ button.s{background:var(--tint);color:var(--a);width:auto;padding:6px 11px;margi
 .dn{display:flex;align-items:center;gap:12px}.lg{flex:1;display:grid;gap:6px;font-size:12px}.lg div{display:flex;align-items:center;gap:6px}.lg b{margin-left:auto}.lg i{width:10px;height:10px;border-radius:4px;flex:none}
 .hb{margin-bottom:10px}.hb>div:first-child{display:flex;justify-content:space-between;font-weight:600;font-size:13px}.stk{display:flex;height:14px;border-radius:8px;overflow:hidden;gap:2px;margin-bottom:10px}.stk i{display:block;height:100%}
 nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:var(--c);padding:6px 6px calc(6px + env(safe-area-inset-bottom));border-radius:22px 22px 0 0}
-nav a{flex:1;text-align:center;padding:6px 0;font-size:10.5px;font-weight:600;color:var(--m);text-decoration:none;border-radius:14px}nav a i{display:block;font-style:normal;font-size:18px;filter:grayscale(1);opacity:.7}nav a.on{color:var(--a);background:var(--tint)}nav a.on i{filter:none;opacity:1}
+nav a{flex:1;text-align:center;padding:6px 0;font-size:10px;font-weight:600;color:var(--m);text-decoration:none;border-radius:14px}nav a i{display:block;font-style:normal;font-size:18px;filter:grayscale(1);opacity:.7}nav a.on{color:var(--a);background:var(--tint)}nav a.on i{filter:none;opacity:1}
 .ok{color:var(--a)}.over{color:var(--r)}.warn{color:var(--w)}#toast{position:fixed;bottom:92px;left:50%;transform:translateX(-50%);background:#1c2723;color:#fff;padding:10px 16px;border-radius:20px;display:none;z-index:9}
+.cb{-webkit-appearance:none;appearance:none;width:26px!important;height:26px;padding:0;flex:none;border:2px solid var(--m);border-radius:9px;background:transparent;position:relative;margin-top:2px}
+.cb:checked{background:var(--a);border-color:var(--a)}.cb:checked::after{content:'✓';color:#fff;position:absolute;inset:0;text-align:center;font-weight:800;line-height:22px}
+.pi{display:flex;gap:12px;padding:12px 0;border-top:1px solid var(--b)}.pm{flex:1;min-width:0}.ph{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px}
+.pi.fin .ph b{text-decoration:line-through;color:var(--m)}.pi input.rp,.pi input.nt{padding:8px 10px;font-size:13px}
 </style></head><body>
 <header><h1>💰 Keuangan Keluarga</h1><input type="month" id="bulan"></header>
 <main>
@@ -40,7 +44,7 @@ nav a{flex:1;text-align:center;padding:6px 0;font-size:10.5px;font-weight:600;co
 </section>
 <section id="in">
  <div class="card"><h2>Input Pemasukan Harian</h2>
-  <div class="row"><div><label>Tanggal</label><input type="date" id="it"></div><div><label>Oleh</label><select id="io"><option>Aditya</option><option>Istri</option></select></div></div>
+  <div class="row"><div><label>Tanggal</label><input type="date" id="it"></div><div><label>Oleh</label><select id="io"><option>Aditya</option><option>Mitsaliya</option></select></div></div>
   <label>Dihitung untuk bulan <small>(otomatis bulan depan jika tanggal 20 ke atas)</small></label><input type="month" id="ib">
   <label>Jenis Pemasukan</label><select id="ik"><option>Utama</option><option>Lainnya</option><option>Bonus</option></select>
   <label>Sumber</label><input id="is" placeholder="Gaji, usaha ikan asin, dll">
@@ -51,7 +55,7 @@ nav a{flex:1;text-align:center;padding:6px 0;font-size:10.5px;font-weight:600;co
 </section>
 <section id="ac">
  <div class="card"><h2>Input Pengeluaran (Actual)</h2>
-  <div class="row"><div><label>Tanggal</label><input type="date" id="et"></div><div><label>Oleh</label><select id="eo"><option>Aditya</option><option>Istri</option></select></div></div>
+  <div class="row"><div><label>Tanggal</label><input type="date" id="et"></div><div><label>Oleh</label><select id="eo"><option>Aditya</option><option>Mitsaliya</option></select></div></div>
   <label>Pos</label><select id="ep"></select>
   <label>Jumlah (Rp)</label><input id="ej" class="rp" inputmode="numeric" placeholder="Rp 0">
   <label>Catatan</label><input id="en">
@@ -59,13 +63,37 @@ nav a{flex:1;text-align:center;padding:6px 0;font-size:10.5px;font-weight:600;co
  <div class="card"><h2>Pengeluaran Bulan Ini</h2><div id="el"></div></div>
 </section>
 <section id="pl">
- <div class="card"><h2>Rencana (Planning) Bulan Ini</h2><div id="pr"></div><div class="li"><b>Total Rencana</b><b id="pt"></b></div>
-  <button class="s" style="margin-top:10px" onclick="copyPrev()">Salin dari bulan lalu</button></div>
+ <div class="card"><h2>Ringkasan Rencana</h2><div class="k" id="psum"></div></div>
+ <div class="card"><h2>Rencana Pemasukan</h2><div id="pin"></div>
+  <div class="row"><div><label>Nama</label><input id="xn" placeholder="Gaji Aditya"></div><div><label>Jumlah</label><input id="xj" class="rp" inputmode="numeric" placeholder="Rp 0"></div></div>
+  <div class="row"><div><label>Tanggal diterima</label><input type="date" id="xd"></div><div><label>Oleh</label><select id="xo"><option>Aditya</option><option>Mitsaliya</option></select></div><div><label>Jenis</label><select id="xk"><option>Utama</option><option>Lainnya</option><option>Bonus</option></select></div></div>
+  <button class="s" style="margin-top:10px" onclick="addPin()">+ Tambah rencana pemasukan</button>
+  <small class="mu" style="margin-top:8px">Centang saat uangnya sudah masuk. Otomatis tercatat di Pemasukan dan terbagi ke pos.</small></div>
+ <div class="card"><h2>Rencana Pengeluaran</h2>
+  <div class="row" style="align-items:center"><small class="mu">Dicentang oleh</small><select id="po"><option>Aditya</option><option>Mitsaliya</option></select></div>
+  <div id="pr"></div>
+  <small class="mu" style="margin-top:8px">Centang saat sudah dibayar. Otomatis tercatat di Pengeluaran dan saldo berkurang. Hapus centang untuk membatalkan.</small>
+  <button class="s" style="margin-top:10px" onclick="copyPrev()">Salin jumlah dari bulan lalu</button></div>
 </section>
 <section id="ev">
  <div class="card"><h2>Ringkasan Bulan Ini</h2><div class="k" id="sum"></div></div>
  <div id="evl"></div>
  <div class="card"><h2>Catatan Evaluasi</h2><textarea id="note" rows="4" placeholder="Apa yang berjalan baik? Apa yang perlu diperbaiki bulan depan?"></textarea><button onclick="saveNote()">Simpan Catatan</button></div>
+</section>
+<section id="sd">
+ <div class="hero"><small>Total saldo ATM dan cash</small><h2 id="sdt"></h2><div class="chips"><span id="sda"></span><span id="sdc"></span></div></div>
+ <div id="sdl"></div>
+ <div class="card"><h2>Ubah Saldo</h2>
+  <label>Rekening atau cash</label><select id="sa"></select>
+  <label>Aksi</label><select id="sk"><option value="set">Atur saldo jadi</option><option value="add">Tambah saldo (+)</option><option value="sub">Kurangi saldo (−)</option></select>
+  <label>Jumlah (Rp)</label><input id="sj" class="rp" inputmode="numeric" placeholder="Rp 0">
+  <label>Catatan</label><input id="sn" placeholder="Opsional">
+  <button onclick="saveSaldo()">Simpan Saldo</button></div>
+ <div class="card"><h2>Pindah Dana</h2><small class="mu">Misalnya tarik tunai dari ATM ke cash, atau transfer antar rekening.</small>
+  <label>Dari</label><select id="pfrom"></select><label>Ke</label><select id="pto"></select>
+  <label>Jumlah (Rp)</label><input id="pamt" class="rp" inputmode="numeric" placeholder="Rp 0">
+  <button onclick="pindah()">Pindahkan</button></div>
+ <div class="card"><h2>Riwayat Saldo</h2><div id="sdh"></div></div>
 </section>
 <section id="st">
  <div class="card"><h2>Pembagian Pemasukan (%)</h2><div id="ps"></div><div id="pc" style="font-size:12px;margin-top:6px"></div>
@@ -85,6 +113,9 @@ let S;try{S=JSON.parse(localStorage.getItem(K))}catch(e){}
 const D=[['Ibu','C',400000],['Ayah','C',150000],['Aditya','C',600000],['Sabun muka','C',80000],['Seli','C',300000],['Jajan','C',500000],['Potong rambut','C',50000],['Bensin','C',1000000],['Tol','C',200000],['Zakat','C',100000],['Mobil','D',6600000],['BPJS','D',300000],['Pulsa','D',200000],['YouTube','D',50000],['Susu','D',100000],['Koperasi & arisan','D',325000],['Operasional (mobil, sepeda 2)','D',500000],['Nabung haji','D',500000],['Dana darurat (sakit)','D',500000]];
 if(!S){const T=D.reduce((a,d)=>a+d[2],0);let u=0;S={pos:D.map((d,i)=>{const p=i<D.length-1?Math.round(d[2]/T*10000)/100:Math.round((100-u)*100)/100;u+=p;return{n:d[0],k:d[1]==='C'?'Cash':'Digital',p}}),inc:[],exp:[],plan:{'2026-11':Object.fromEntries(D.map(d=>[d[0],d[2]]))},note:{},url:''}}
 {const B='https://script.google.com/macros/s/',NEW=B+'AKfycbxeLbXTLLZniPUkfdnVVHI_ohQdKKp-ngwZsGDOqkeiz8gxLNkgvcIuhWBwx0S0kjGY/exec',OLD=[B+'AKfycbz_Hy59oLUPQFzKJC-z0syteEQNG6TWtOb7RkeE9TZ03xxe220yOLXQtrWvIAYgNEcK/exec',B+'AKfycbykUU-nzmXskPM_LU5IlHrpkVXj1hu3PQADrLMQMHHqsHhxktNhkSqsp9G69k2UVDY/exec'];if(!S.url||OLD.includes(S.url))S.url=NEW}
+S.done=S.done||{};S.pn=S.pn||{};S.pinc=S.pinc||{};
+const DA=[[101,'Aditya','ATM','BCA'],[102,'Aditya','ATM','Mandiri'],[103,'Aditya','ATM','BRI'],[104,'Mitsaliya','ATM','Bank Jatim'],[105,'Mitsaliya','ATM','BRI'],[106,'Aditya','Cash','Cash'],[107,'Mitsaliya','Cash','Cash']];
+S.acc=S.acc||DA.map(a=>({id:a[0],o:a[1],t:a[2],n:a[3],s:0}));S.mut=S.mut||[];
 const num=v=>+String(v).replace(/\D/g,'')||0;
 document.addEventListener('input',e=>{if(e.target.classList.contains('rp')){const n=num(e.target.value);e.target.value=n?n.toLocaleString('id-ID'):''}});
 const BLN=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'],bln=m=>BLN[+m.slice(5,7)-1]+' '+m.slice(0,4);
@@ -92,12 +123,12 @@ function save(){let ok=true;try{localStorage.setItem(K,JSON.stringify(S));if(loc
  if(!ok)toast('Belum tersimpan permanen: browser memblokir penyimpanan. Buka lewat Chrome/Safari biasa, bukan mode privat.');
  try{render()}catch(e){console.error(e)}return ok}
 function toast(m){const t=$('#toast');t.textContent=m;t.style.display='block';setTimeout(()=>t.style.display='none',2200)}
-const tabs=[['hm','Beranda','🏠'],['in','Masuk','⬇️'],['ac','Keluar','⬆️'],['pl','Rencana','📋'],['ev','Evaluasi','📊'],['st','Setelan','⚙️']];
+const tabs=[['hm','Beranda','🏠'],['in','Masuk','⬇️'],['ac','Keluar','⬆️'],['pl','Rencana','📋'],['ev','Evaluasi','📊'],['sd','Saldo','💳'],['st','Setelan','⚙️']];
 $('#nav').innerHTML=tabs.map(t=>`<a href="#" data-t="${t[0]}"><i>${t[2]}</i>${t[1]}</a>`).join('');
 $('#nav').onclick=e=>{const a=e.target.closest('a');if(!a)return;const t=a.dataset.t;e.preventDefault();scrollTo(0,0);document.querySelectorAll('section').forEach(s=>s.classList.toggle('on',s.id===t));document.querySelectorAll('nav a').forEach(a=>a.classList.toggle('on',a.dataset.t===t));render()};
-const today=new Date().toISOString().slice(0,10);$('#bulan').value=today.slice(0,7);$('#it').value=$('#et').value=today;
+const today=new Date(Date.now()-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,10);$('#bulan').value=today.slice(0,7);$('#it').value=$('#et').value=today;
 function setIb(){const t=$('#it').value;if(!t)return;let[y,m,d]=t.split('-').map(Number);if(d>=20){m++;if(m>12){m=1;y++}}$('#ib').value=y+'-'+String(m).padStart(2,'0')}
-$('#it').onchange=setIb;setIb();
+$('#it').onchange=setIb;setIb();$('#xd').value=today;
 const inI=x=>(x.b||x.t.slice(0,7))===M();
 $('#bulan').onchange=render;$('#ij').oninput=prev;
 function prev(){const j=num($('#ij').value);$('#prev').innerHTML=j?S.pos.map(p=>`${esc(p.n)}: <b>${R(j*p.p/100)}</b>`).join(' · '):''}
@@ -107,7 +138,7 @@ function addExp(){const t=$('#et').value,j=num($('#ej').value);if(!t||!j)return 
  S.exp.push({id:Date.now(),t,o:$('#eo').value,p:$('#ep').value,j,n:$('#en').value});$('#ej').value='';$('#en').value='';$('#bulan').value=t.slice(0,7);if(save())toast('Pengeluaran tersimpan di bulan '+bln(t.slice(0,7)))}
 function del(k,id){if(confirm('Hapus data ini?')){S[k]=S[k].filter(x=>x.id!==id);save()}}
 function plan(p){return(S.plan[M()]||{})[p]||0}
-function setPlan(p,v){(S.plan[M()]=S.plan[M()]||{})[p]=num(v);save()}
+function setPlan(p,v){(S.plan[M()]=S.plan[M()]||{})[p]=num(v);const e=expOf(p);if(e)e.j=num(v);save()}
 function copyPrev(){const d=new Date(M()+'-01');d.setMonth(d.getMonth()-1);const pm=d.toISOString().slice(0,7);if(!S.plan[pm])return toast('Bulan lalu belum ada rencana');S.plan[M()]={...S.plan[pm]};save()}
 function saveNote(){S.note[M()]=$('#note').value;save();toast('Catatan tersimpan')}
 function addPos(){const n=prompt('Nama pos baru?');if(n){S.pos.push({n,k:confirm('OK = Digital, Batal = Cash')?'Digital':'Cash',p:0});save()}}
@@ -131,29 +162,62 @@ function renderHome(){const inc=S.inc.filter(inI),ex=S.exp.filter(inM),pi=sum(in
  const ik2=['Utama','Lainnya','Bonus'].map((k,i)=>({k,v:sum(inc.filter(x=>(x.k||'Utama')===k),x=>x.j),c:PAL[i]}));
  $('#c4').innerHTML=pi?`<div class="stk">${ik2.filter(x=>x.v).map(x=>`<i style="width:${x.v/pi*100}%;background:${x.c}"></i>`).join('')}</div><div class="lg">${ik2.map(x=>`<div><i style="background:${x.c}"></i>${x.k}<b>${R(x.v)}</b></div>`).join('')}</div>`:'<span class="mu">Belum ada pemasukan bulan ini</span>';
  $('#c5').innerHTML=['Cash','Digital'].map(k=>{const q=S.pos.filter(p=>p.k===k),pl=sum(q,p=>plan(p.n)),ak=sum(q,p=>A(p.n)),pc=pl?ak/pl*100:0;return`<div class="hb"><div><span>${k}</span><span class="mu">${R(ak)} / ${R(pl)}</span></div><div class="tr"><i style="width:${Math.min(pc,100)}%;background:${pc>100?'var(--r)':'var(--a)'}"></i></div></div>`}).join('')}
+const uid=()=>Date.now()*10+Math.floor(Math.random()*10),pnn=m=>(S.pn[m]=S.pn[m]||{}),
+expOf=p=>S.exp.find(e=>e.id===(S.done[M()]||{})[p]),inDone=i=>S.inc.some(x=>x.id===i.done);
+function tick(p,on){const m=M();
+ if(on){const j=plan(p);if(!j){toast('Isi jumlah rencana dulu');return render()}
+  (S.done[m]=S.done[m]||{})[p]=uid();const id=S.done[m][p];S.exp.push({id,t:today.slice(0,7)===m?today:m+'-01',o:$('#po').value,p,j,n:'Rencana terlaksana'})}
+ else{const e=expOf(p);if(e)S.exp=S.exp.filter(x=>x.id!==e.id);delete (S.done[m]||{})[p]}
+ if(save()&&on)toast(p+' tercatat di Pengeluaran')}
+function setPn(p,v){pnn(M())[p]=v;save()}
+function addPin(){const n=$('#xn').value.trim(),j=num($('#xj').value),d=$('#xd').value;if(!n||!j||!d)return toast('Isi nama, jumlah, dan tanggal');
+ (S.pinc[M()]=S.pinc[M()]||[]).push({id:uid(),n,j,d,o:$('#xo').value,k:$('#xk').value});$('#xn').value=$('#xj').value='';save()}
+function tickIn(id,on){const m=M(),it=(S.pinc[m]||[]).find(x=>x.id===id);if(!it)return;
+ if(on){const a={};S.pos.forEach(p=>a[p.n]=Math.round(it.j*p.p/100));it.done=uid();S.inc.push({id:it.done,t:it.d,o:it.o,b:m,k:it.k,s:it.n,j:it.j,a})}
+ else{S.inc=S.inc.filter(x=>x.id!==it.done);delete it.done}
+ if(save()&&on)toast(it.n+' tercatat di Pemasukan')}
+function delPin(id){if(confirm('Hapus dari rencana? Pemasukan yang sudah tercatat tetap ada.')){const m=M();S.pinc[m]=(S.pinc[m]||[]).filter(x=>x.id!==id);save()}}
+function renderPlan(){const m=M(),pins=(S.pinc[m]||[]).slice().sort((a,b)=>a.d.localeCompare(b.d)),pi=sum(S.inc.filter(inI),i=>i.j),pe=sum(S.exp.filter(inM),e=>e.j),pp=sum(S.pos,p=>plan(p.n)),ok=S.pos.filter(p=>expOf(p.n)),
+ tk=sum(ok,p=>expOf(p.n).j);
+ $('#psum').innerHTML=[['Rencana pemasukan',sum(pins,i=>i.j)],['Sudah masuk',sum(pins.filter(inDone),i=>i.j)],['Rencana pengeluaran',pp],['Sudah terlaksana',tk],['Belum terlaksana',pp-sum(ok,p=>plan(p.n))],['Sisa saldo',pi-pe]].map(x=>`<div><span>${x[0]}</span><b>${R(x[1])}</b></div>`).join('');
+ $('#pin').innerHTML=pins.length?pins.map(i=>{const d=inDone(i);return`<div class="pi${d?' fin':''}"><input type="checkbox" class="cb" ${d?'checked':''} onchange="tickIn(${i.id},this.checked)"><div class="pm"><div class="ph"><b>${esc(i.n)}</b><b>${R(i.j)}</b></div><div class="ph"><small class="mu">${i.d} · ${esc(i.o)} · ${i.k}${d?' · sudah masuk':''}</small><button class="s" onclick="delPin(${i.id})">✕</button></div></div></div>`}).join(''):'<span class="mu">Belum ada. Tambahkan gaji atau pemasukan yang kamu rencanakan.</span>';
+ $('#pr').innerHTML=S.pos.map(p=>{const e=expOf(p.n),q=esc(p.n);return`<div class="pi${e?' fin':''}"><input type="checkbox" class="cb" ${e?'checked':''} onchange="tick('${q}',this.checked)"><div class="pm"><div class="ph"><b>${q}</b><small class="mu">${p.k||''}${e?' · terlaksana tgl '+e.t.slice(8)+'/'+e.t.slice(5,7):''}</small></div><div class="row"><input class="rp" inputmode="numeric" placeholder="Rp 0" value="${plan(p.n)?plan(p.n).toLocaleString('id-ID'):''}" onchange="setPlan('${q}',this.value)"><input class="nt" placeholder="Catatan" value="${esc(pnn(m)[p.n])}" onchange="setPn('${q}',this.value)" style="flex:1.4"></div></div></div>`}).join('')}
+const OW=['Aditya','Mitsaliya'],accLbl=a=>a.o+' · '+(a.t==='Cash'?'Cash':a.t+' '+a.n);
+function fill(id,o){const e=$(id),v=e.value;e.innerHTML=o;if(v&&[...e.options].some(x=>x.value===v))e.value=v}
+function mutate(id,d,n){const a=S.acc.find(x=>x.id===id);a.s+=d;S.mut.push({id:uid(),t:today,a:id,d,s:a.s,n:n||''})}
+function saveSaldo(){const id=+$('#sa').value,k=$('#sk').value,a=S.acc.find(x=>x.id===id);if(!a||$('#sj').value==='')return toast('Isi jumlah dulu');
+ const j=num($('#sj').value),d=k==='set'?j-a.s:k==='add'?j:-j;if(!d)return toast('Saldo tidak berubah');
+ mutate(id,d,$('#sn').value||(k==='set'?'Atur saldo':''));$('#sj').value=$('#sn').value='';if(save())toast('Saldo '+accLbl(a)+' diperbarui')}
+function pindah(){const f=+$('#pfrom').value,t=+$('#pto').value,j=num($('#pamt').value),fa=S.acc.find(x=>x.id===f),ta=S.acc.find(x=>x.id===t);
+ if(!fa||!ta||f===t)return toast('Pilih akun asal dan tujuan yang berbeda');if(!j)return toast('Isi jumlah dulu');
+ mutate(f,-j,'Pindah ke '+accLbl(ta));mutate(t,j,'Dari '+accLbl(fa));$('#pamt').value='';if(save())toast('Dana dipindahkan')}
+function renderSaldo(){const T=sum(S.acc,a=>a.s),tp=k=>sum(S.acc.filter(a=>a.t===k),a=>a.s);
+ $('#sdt').textContent=R(T);$('#sda').textContent='ATM '+R(tp('ATM'));$('#sdc').textContent='Cash '+R(tp('Cash'));
+ $('#sdl').innerHTML=OW.map(o=>{const q=S.acc.filter(a=>a.o===o);return`<div class="card"><div class="li" style="border:0;padding:0 0 6px"><h2 style="margin:0">${o}</h2><b>${R(sum(q,a=>a.s))}</b></div>${q.map(a=>`<div class="li"><div>${a.t==='Cash'?'Cash':esc(a.n)}<small>${a.t==='Cash'?'Uang tunai':'ATM'}</small></div><b class="${a.s<0?'over':''}">${R(a.s)}</b></div>`).join('')}</div>`}).join('');
+ const op=S.acc.map(a=>`<option value="${a.id}">${esc(accLbl(a))}</option>`).join('');fill('#sa',op);fill('#pfrom',op);fill('#pto',op);
+ if($('#pto').value===$('#pfrom').value&&S.acc[1])$('#pto').value=S.acc[1].id;
+ $('#sdh').innerHTML=S.mut.slice(-30).reverse().map(m=>{const a=S.acc.find(x=>x.id===m.a);return`<div class="li"><div>${a?esc(accLbl(a)):'-'}<small>${m.t}${m.n?' · '+esc(m.n):''}</small></div><div style="text-align:right"><b class="${m.d<0?'over':'ok'}">${m.d<0?'−':'+'}${R(Math.abs(m.d))}</b><small>saldo ${R(m.s)}</small></div></div>`}).join('')||'<span class="mu">Belum ada perubahan saldo</span>'}
 function render(){
  $('#ep').innerHTML=S.pos.map(p=>`<option>${esc(p.n)}</option>`).join('');
  list('inc','#il',i=>`<div class="li"><div><b>${R(i.j)}</b> · ${esc(i.s)||'-'}<small>${i.t} · ${esc(i.o)} · ${i.k||'Utama'}${i.b&&i.b!==i.t.slice(0,7)?' · untuk '+i.b:''}</small></div><button class="s" onclick="del('inc',${i.id})">✕</button></div>`);
  list('exp','#el',e=>`<div class="li"><div><b>${R(e.j)}</b> · ${esc(e.p)}<small>${e.t} · ${esc(e.o)} ${esc(e.n)}</small></div><button class="s" onclick="del('exp',${e.id})">✕</button></div>`);
- $('#pr').innerHTML=S.pos.map(p=>`<div class="li"><span>${esc(p.n)}</span><input class="rp" inputmode="numeric" placeholder="Rp 0" style="width:150px" value="${plan(p.n)?plan(p.n).toLocaleString('id-ID'):''}" onchange="setPlan('${esc(p.n)}',this.value)"></div>`).join('');
- $('#pt').textContent=R(sum(S.pos,p=>plan(p.n)));
  const inc=S.inc.filter(inI),ex=S.exp.filter(inM),pi=sum(inc,i=>i.j),pe=sum(ex,e=>e.j),pp=sum(S.pos,p=>plan(p.n));
  const ik=k=>sum(inc.filter(i=>(i.k||'Utama')===k),i=>i.j),grp=k=>{const ps=S.pos.filter(p=>p.k===k);return[sum(ps,p=>plan(p.n)),sum(ex.filter(e=>ps.some(p=>p.n===e.p)),e=>e.j)]},gc=grp('Cash'),gd=grp('Digital');
  $('#sum').innerHTML=[['Total Pemasukan',pi],['Pemasukan Utama',ik('Utama')],['Pemasukan Lainnya',ik('Lainnya')],['Pemasukan Bonus',ik('Bonus')],['Rencana Pengeluaran',pp],['Pengeluaran Actual',pe],['Saldo (pemasukan − actual)',pi-pe],['Cash: rencana',gc[0]],['Cash: actual',gc[1]],['Digital: rencana',gd[0]],['Digital: actual',gd[1]],['Pemasukan − rencana',pi-pp]].map(x=>`<div><span>${x[0]}</span><b>${R(x[1])}</b></div>`).join('');
  $('#evl').innerHTML=S.pos.map(p=>{const pl=plan(p.n),al=sum(inc,i=>i.a[p.n]||0),ak=sum(ex.filter(e=>e.p===p.n),e=>e.j),pct=pl?ak/pl*100:0,c=!pl&&ak?'over':pct>100?'over':pct>80?'warn':'ok',
   st=!pl&&ak?'Belum direncanakan':pl?(pct>100?'Melebihi rencana':pct>80?'Hampir habis':'Aman'):'-';
-  return`<div class="card"><div class="li" style="border:0;padding:0"><span><b>${esc(p.n)}</b> <small style="color:var(--m)">${p.k||''}</small></span><b class="${c}">${st}</b></div><div class="bar"><i style="width:${Math.min(pct,100)}%;background:var(--${c==='ok'?'a':c==='warn'?'w':'r'})"></i></div>
+  return`<div class="card"><div class="li" style="border:0;padding:0"><span><b>${esc(p.n)}</b> <small style="color:var(--m)">${p.k||''}</small>${(S.pn[M()]||{})[p.n]?`<small class="mu">${esc(S.pn[M()][p.n])}</small>`:''}</span><b class="${c}">${st}</b></div><div class="bar"><i style="width:${Math.min(pct,100)}%;background:var(--${c==='ok'?'a':c==='warn'?'w':'r'})"></i></div>
   <div class="k"><div><span>Rencana</span><b>${R(pl)}</b></div><div><span>Actual</span><b>${R(ak)}</b></div><div><span>Alokasi Pemasukan</span><b>${R(al)}</b></div><div><span>Sisa vs Rencana</span><b class="${pl-ak<0?'over':''}">${R(pl-ak)}</b></div></div></div>`}).join('');
  $('#note').value=S.note[M()]||'';
  $('#ps').innerHTML=S.pos.map((p,i)=>`<div class="row" style="margin-bottom:6px"><input value="${esc(p.n)}" onchange="setPos(${i},'n',this.value)"><input type="number" style="max-width:80px" value="${p.p}" onchange="setPos(${i},'p',this.value)"><button class="s" onclick="delPos(${i})">✕</button></div>`).join('');
  const tp=sum(S.pos,p=>p.p);$('#pc').innerHTML=`Total: <b class="${tp===100?'ok':'over'}">${tp}%</b>${tp===100?'':' (sebaiknya 100%)'}`;
- $('#url').value=S.url||'';prev();renderHome();
+ $('#url').value=S.url||'';prev();renderHome();renderPlan();renderSaldo();
 }
 $('#url').onchange=e=>{S.url=e.target.value.trim();save()};
 const body=()=>{const{url,...d}=S;return d};
 async function push(){if(!S.url)return toast('Isi URL Web App dulu');toast('Mengirim...');
  try{const r=await fetch(S.url,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({data:body()})});const j=await r.json();toast(j.ok?'Terkirim ke Sheet ✔':'Gagal: '+j.error)}catch(e){toast('Gagal terhubung')}}
 async function pull(){if(!S.url)return toast('Isi URL Web App dulu');if(!confirm('Data di HP ini akan diganti dengan data Sheet. Lanjut?'))return;
- try{const r=await fetch(S.url);const d=await r.json();if(d.error)return toast(d.error);d.pos.forEach(p=>{p.k=p.k||(S.pos.find(x=>x.n===p.n)||{}).k||'Cash'});S={...d,url:S.url};save();toast('Data diambil ✔')}catch(e){toast('Gagal terhubung')}}
+ try{const r=await fetch(S.url);const d=await r.json();if(d.error)return toast(d.error);d.pos.forEach(p=>{p.k=p.k||(S.pos.find(x=>x.n===p.n)||{}).k||'Cash'});if(!d.acc||!d.acc.length){d.acc=S.acc;d.mut=S.mut}S={...d,url:S.url};S.mut=S.mut||[];S.done=S.done||{};S.pn=S.pn||{};S.pinc=S.pinc||{};save();toast('Data diambil ✔')}catch(e){toast('Gagal terhubung')}}
 render();document.querySelector('nav a').classList.add('on');
 </script></body></html>
