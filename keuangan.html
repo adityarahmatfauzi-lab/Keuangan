@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Keuangan Keluarga</title>
+<style>
+:root{--bg:#f4f6f5;--c:#fff;--t:#1b2420;--m:#6b7a73;--a:#0f7a55;--r:#c0392b;--w:#d68910;--b:#dfe5e2}
+@media(prefers-color-scheme:dark){:root{--bg:#121816;--c:#1b2420;--t:#e8efec;--m:#8fa098;--a:#34c38f;--r:#ef6b5c;--w:#f0b04a;--b:#2b3631}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--t);font:15px system-ui,sans-serif;padding-bottom:76px}
+header{position:sticky;top:0;background:var(--a);color:#fff;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;z-index:5}
+header h1{font-size:17px;margin:0}header input{border:0;border-radius:8px;padding:6px;font:inherit}
+main{padding:12px;max-width:640px;margin:auto}section{display:none}section.on{display:block}
+.card{background:var(--c);border:1px solid var(--b);border-radius:12px;padding:12px;margin-bottom:12px}
+h2{font-size:15px;margin:0 0 8px}label{display:block;font-size:12px;color:var(--m);margin:8px 0 3px}
+input,select,textarea{width:100%;padding:9px;border:1px solid var(--b);border-radius:8px;background:var(--bg);color:var(--t);font:inherit}
+button{background:var(--a);color:#fff;border:0;border-radius:8px;padding:10px 14px;font:inherit;margin-top:10px;width:100%}
+button.s{background:var(--b);color:var(--t);width:auto;padding:4px 9px;margin:0}
+.row{display:flex;gap:8px}.row>*{flex:1}.li{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-top:1px solid var(--b);gap:8px}
+.li small{color:var(--m);display:block}.bar{height:8px;background:var(--b);border-radius:6px;overflow:hidden;margin:6px 0}.bar i{display:block;height:100%}
+.k{display:grid;grid-template-columns:1fr 1fr;gap:8px}.k div{background:var(--bg);border-radius:10px;padding:8px}.k b{display:block;font-size:15px}.k span{font-size:11px;color:var(--m)}
+nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:var(--c);border-top:1px solid var(--b);padding-bottom:env(safe-area-inset-bottom)}
+nav a{flex:1;text-align:center;padding:11px 0;font-size:12px;color:var(--m)}nav a.on{color:var(--a);font-weight:700}
+.ok{color:var(--a)}.over{color:var(--r)}.warn{color:var(--w)}#toast{position:fixed;bottom:84px;left:50%;transform:translateX(-50%);background:#222;color:#fff;padding:8px 14px;border-radius:20px;display:none;z-index:9}
+</style></head><body>
+<header><h1>💰 Keuangan Keluarga</h1><input type="month" id="bulan"></header>
+<main>
+<section id="in" class="on">
+ <div class="card"><h2>Input Pemasukan Harian</h2>
+  <div class="row"><div><label>Tanggal</label><input type="date" id="it"></div><div><label>Oleh</label><select id="io"><option>Aditya</option><option>Istri</option></select></div></div>
+  <label>Jenis Pemasukan</label><select id="ik"><option>Utama</option><option>Lainnya</option><option>Bonus</option></select>
+  <label>Sumber</label><input id="is" placeholder="Gaji, usaha ikan asin, dll">
+  <label>Jumlah (Rp)</label><input id="ij" class="rp" inputmode="numeric" placeholder="Rp 0">
+  <div id="prev" style="font-size:12px;color:var(--m);margin-top:6px"></div>
+  <button onclick="addInc()">Simpan Pemasukan</button></div>
+ <div class="card"><h2>Pemasukan Bulan Ini</h2><div id="il"></div></div>
+</section>
+<section id="ac">
+ <div class="card"><h2>Input Pengeluaran (Actual)</h2>
+  <div class="row"><div><label>Tanggal</label><input type="date" id="et"></div><div><label>Oleh</label><select id="eo"><option>Aditya</option><option>Istri</option></select></div></div>
+  <label>Pos</label><select id="ep"></select>
+  <label>Jumlah (Rp)</label><input id="ej" class="rp" inputmode="numeric" placeholder="Rp 0">
+  <label>Catatan</label><input id="en">
+  <button onclick="addExp()">Simpan Pengeluaran</button></div>
+ <div class="card"><h2>Pengeluaran Bulan Ini</h2><div id="el"></div></div>
+</section>
+<section id="pl">
+ <div class="card"><h2>Rencana (Planning) Bulan Ini</h2><div id="pr"></div><div class="li"><b>Total Rencana</b><b id="pt"></b></div>
+  <button class="s" style="margin-top:10px" onclick="copyPrev()">Salin dari bulan lalu</button></div>
+</section>
+<section id="ev">
+ <div class="card"><h2>Ringkasan Bulan Ini</h2><div class="k" id="sum"></div></div>
+ <div id="evl"></div>
+ <div class="card"><h2>Catatan Evaluasi</h2><textarea id="note" rows="4" placeholder="Apa yang berjalan baik? Apa yang perlu diperbaiki bulan depan?"></textarea><button onclick="saveNote()">Simpan Catatan</button></div>
+</section>
+<section id="st">
+ <div class="card"><h2>Pembagian Pemasukan (%)</h2><div id="ps"></div><div id="pc" style="font-size:12px;margin-top:6px"></div>
+  <button class="s" style="margin-top:10px" onclick="addPos()">+ Tambah Pos</button></div>
+ <div class="card"><h2>Sinkron Google Sheets</h2>
+  <label>URL Web App (Apps Script)</label><input id="url" placeholder="https://script.google.com/macros/s/.../exec">
+  <div class="row"><button onclick="push()">⬆ Kirim ke Sheet</button><button onclick="pull()" style="background:#555">⬇ Ambil dari Sheet</button></div>
+  <p style="font-size:12px;color:var(--m)">Data tersimpan di HP ini, lalu dikirim/diambil lewat tombol di atas. Ambil dulu sebelum input jika pasangan baru saja mengirim.</p></div>
+</section>
+</main>
+<nav id="nav"></nav><div id="toast"></div>
+<script>
+const $=s=>document.querySelector(s),K='keuangan_v1',R=n=>'Rp '+Math.round(n||0).toLocaleString('id-ID'),
+esc=s=>String(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])),
+sum=(a,f)=>a.reduce((x,y)=>x+f(y),0),M=()=>$('#bulan').value,inM=x=>x.t.slice(0,7)===M();
+let S;try{S=JSON.parse(localStorage.getItem(K))}catch(e){}
+const D=[['Ibu','C',400000],['Ayah','C',150000],['Aditya','C',600000],['Sabun muka','C',80000],['Seli','C',300000],['Jajan','C',500000],['Potong rambut','C',50000],['Bensin','C',1000000],['Tol','C',200000],['Zakat','C',100000],['Mobil','D',6600000],['BPJS','D',300000],['Pulsa','D',200000],['YouTube','D',50000],['Susu','D',100000],['Koperasi & arisan','D',325000],['Operasional (mobil, sepeda 2)','D',500000],['Nabung haji','D',500000],['Dana darurat (sakit)','D',500000]];
+if(!S){const T=D.reduce((a,d)=>a+d[2],0);let u=0;S={pos:D.map((d,i)=>{const p=i<D.length-1?Math.round(d[2]/T*10000)/100:Math.round((100-u)*100)/100;u+=p;return{n:d[0],k:d[1]==='C'?'Cash':'Digital',p}}),inc:[],exp:[],plan:{'2026-11':Object.fromEntries(D.map(d=>[d[0],d[2]]))},note:{},url:''}}
+S.url=S.url||'https://script.google.com/macros/s/AKfycbz_Hy59oLUPQFzKJC-z0syteEQNG6TWtOb7RkeE9TZ03xxe220yOLXQtrWvIAYgNEcK/exec';
+const num=v=>+String(v).replace(/\D/g,'')||0;
+document.addEventListener('input',e=>{if(e.target.classList.contains('rp')){const n=num(e.target.value);e.target.value=n?n.toLocaleString('id-ID'):''}});
+function save(){try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}render()}
+function toast(m){const t=$('#toast');t.textContent=m;t.style.display='block';setTimeout(()=>t.style.display='none',2200)}
+const tabs=[['in','Pemasukan'],['ac','Actual'],['pl','Rencana'],['ev','Evaluasi'],['st','Setelan']];
+$('#nav').innerHTML=tabs.map(t=>`<a href="#" data-t="${t[0]}">${t[1]}</a>`).join('');
+$('#nav').onclick=e=>{const t=e.target.dataset.t;if(!t)return;e.preventDefault();document.querySelectorAll('section').forEach(s=>s.classList.toggle('on',s.id===t));document.querySelectorAll('nav a').forEach(a=>a.classList.toggle('on',a.dataset.t===t));render()};
+const today=new Date().toISOString().slice(0,10);$('#bulan').value=today.slice(0,7);$('#it').value=$('#et').value=today;
+$('#bulan').onchange=render;$('#ij').oninput=prev;
+function prev(){const j=num($('#ij').value);$('#prev').innerHTML=j?S.pos.map(p=>`${esc(p.n)}: <b>${R(j*p.p/100)}</b>`).join(' · '):''}
+function addInc(){const t=$('#it').value,j=num($('#ij').value);if(!t||!j)return toast('Isi tanggal & jumlah');
+ const a={};S.pos.forEach(p=>a[p.n]=Math.round(j*p.p/100));S.inc.push({id:Date.now(),t,o:$('#io').value,k:$('#ik').value,s:$('#is').value,j,a});$('#ij').value='';$('#is').value='';prev();save();toast('Tersimpan')}
+function addExp(){const t=$('#et').value,j=num($('#ej').value);if(!t||!j)return toast('Isi tanggal & jumlah');
+ S.exp.push({id:Date.now(),t,o:$('#eo').value,p:$('#ep').value,j,n:$('#en').value});$('#ej').value='';$('#en').value='';save();toast('Tersimpan')}
+function del(k,id){if(confirm('Hapus data ini?')){S[k]=S[k].filter(x=>x.id!==id);save()}}
+function plan(p){return(S.plan[M()]||{})[p]||0}
+function setPlan(p,v){(S.plan[M()]=S.plan[M()]||{})[p]=num(v);save()}
+function copyPrev(){const d=new Date(M()+'-01');d.setMonth(d.getMonth()-1);const pm=d.toISOString().slice(0,7);if(!S.plan[pm])return toast('Bulan lalu belum ada rencana');S.plan[M()]={...S.plan[pm]};save()}
+function saveNote(){S.note[M()]=$('#note').value;save();toast('Catatan tersimpan')}
+function addPos(){const n=prompt('Nama pos baru?');if(n){S.pos.push({n,k:confirm('OK = Digital, Batal = Cash')?'Digital':'Cash',p:0});save()}}
+function setPos(i,k,v){S.pos[i][k]=k==='p'?+v||0:v;save()}
+function delPos(i){if(confirm('Hapus pos? Data lama pos ini tetap tersimpan.')){S.pos.splice(i,1);save()}}
+function list(k,id,f){const a=S[k].filter(inM).sort((x,y)=>y.t.localeCompare(x.t));$(id).innerHTML=a.length?a.map(f).join('')+`<div class="li"><b>Total</b><b>${R(sum(a,x=>x.j))}</b></div>`:'<small style="color:var(--m)">Belum ada data</small>'}
+function render(){
+ $('#ep').innerHTML=S.pos.map(p=>`<option>${esc(p.n)}</option>`).join('');
+ list('inc','#il',i=>`<div class="li"><div><b>${R(i.j)}</b> · ${esc(i.s)||'-'}<small>${i.t} · ${esc(i.o)} · ${i.k||'Utama'}</small></div><button class="s" onclick="del('inc',${i.id})">✕</button></div>`);
+ list('exp','#el',e=>`<div class="li"><div><b>${R(e.j)}</b> · ${esc(e.p)}<small>${e.t} · ${esc(e.o)} ${esc(e.n)}</small></div><button class="s" onclick="del('exp',${e.id})">✕</button></div>`);
+ $('#pr').innerHTML=S.pos.map(p=>`<div class="li"><span>${esc(p.n)}</span><input class="rp" inputmode="numeric" placeholder="Rp 0" style="width:150px" value="${plan(p.n)?plan(p.n).toLocaleString('id-ID'):''}" onchange="setPlan('${esc(p.n)}',this.value)"></div>`).join('');
+ $('#pt').textContent=R(sum(S.pos,p=>plan(p.n)));
+ const inc=S.inc.filter(inM),ex=S.exp.filter(inM),pi=sum(inc,i=>i.j),pe=sum(ex,e=>e.j),pp=sum(S.pos,p=>plan(p.n));
+ const ik=k=>sum(inc.filter(i=>(i.k||'Utama')===k),i=>i.j),grp=k=>{const ps=S.pos.filter(p=>p.k===k);return[sum(ps,p=>plan(p.n)),sum(ex.filter(e=>ps.some(p=>p.n===e.p)),e=>e.j)]},gc=grp('Cash'),gd=grp('Digital');
+ $('#sum').innerHTML=[['Total Pemasukan',pi],['Pemasukan Utama',ik('Utama')],['Pemasukan Lainnya',ik('Lainnya')],['Pemasukan Bonus',ik('Bonus')],['Rencana Pengeluaran',pp],['Pengeluaran Actual',pe],['Saldo (pemasukan − actual)',pi-pe],['Cash: rencana',gc[0]],['Cash: actual',gc[1]],['Digital: rencana',gd[0]],['Digital: actual',gd[1]],['Pemasukan − rencana',pi-pp]].map(x=>`<div><span>${x[0]}</span><b>${R(x[1])}</b></div>`).join('');
+ $('#evl').innerHTML=S.pos.map(p=>{const pl=plan(p.n),al=sum(inc,i=>i.a[p.n]||0),ak=sum(ex.filter(e=>e.p===p.n),e=>e.j),pct=pl?ak/pl*100:0,c=!pl&&ak?'over':pct>100?'over':pct>80?'warn':'ok',
+  st=!pl&&ak?'Belum direncanakan':pl?(pct>100?'Melebihi rencana':pct>80?'Hampir habis':'Aman'):'-';
+  return`<div class="card"><div class="li" style="border:0;padding:0"><span><b>${esc(p.n)}</b> <small style="color:var(--m)">${p.k||''}</small></span><b class="${c}">${st}</b></div><div class="bar"><i style="width:${Math.min(pct,100)}%;background:var(--${c==='ok'?'a':c==='warn'?'w':'r'})"></i></div>
+  <div class="k"><div><span>Rencana</span><b>${R(pl)}</b></div><div><span>Actual</span><b>${R(ak)}</b></div><div><span>Alokasi Pemasukan</span><b>${R(al)}</b></div><div><span>Sisa vs Rencana</span><b class="${pl-ak<0?'over':''}">${R(pl-ak)}</b></div></div></div>`}).join('');
+ $('#note').value=S.note[M()]||'';
+ $('#ps').innerHTML=S.pos.map((p,i)=>`<div class="row" style="margin-bottom:6px"><input value="${esc(p.n)}" onchange="setPos(${i},'n',this.value)"><input type="number" style="max-width:80px" value="${p.p}" onchange="setPos(${i},'p',this.value)"><button class="s" onclick="delPos(${i})">✕</button></div>`).join('');
+ const tp=sum(S.pos,p=>p.p);$('#pc').innerHTML=`Total: <b class="${tp===100?'ok':'over'}">${tp}%</b>${tp===100?'':' (sebaiknya 100%)'}`;
+ $('#url').value=S.url||'';prev();
+}
+$('#url').onchange=e=>{S.url=e.target.value.trim();save()};
+const body=()=>{const{url,...d}=S;return d};
+async function push(){if(!S.url)return toast('Isi URL Web App dulu');toast('Mengirim...');
+ try{const r=await fetch(S.url,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({data:body()})});const j=await r.json();toast(j.ok?'Terkirim ke Sheet ✔':'Gagal: '+j.error)}catch(e){toast('Gagal terhubung')}}
+async function pull(){if(!S.url)return toast('Isi URL Web App dulu');if(!confirm('Data di HP ini akan diganti dengan data Sheet. Lanjut?'))return;
+ try{const r=await fetch(S.url);const d=await r.json();if(d.error)return toast(d.error);S={...d,url:S.url};save();toast('Data diambil ✔')}catch(e){toast('Gagal terhubung')}}
+render();document.querySelector('nav a').classList.add('on');
+</script></body></html>
