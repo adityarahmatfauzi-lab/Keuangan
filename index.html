@@ -84,10 +84,13 @@ sum=(a,f)=>a.reduce((x,y)=>x+f(y),0),M=()=>$('#bulan').value,inM=x=>x.t.slice(0,
 let S;try{S=JSON.parse(localStorage.getItem(K))}catch(e){}
 const D=[['Ibu','C',400000],['Ayah','C',150000],['Aditya','C',600000],['Sabun muka','C',80000],['Seli','C',300000],['Jajan','C',500000],['Potong rambut','C',50000],['Bensin','C',1000000],['Tol','C',200000],['Zakat','C',100000],['Mobil','D',6600000],['BPJS','D',300000],['Pulsa','D',200000],['YouTube','D',50000],['Susu','D',100000],['Koperasi & arisan','D',325000],['Operasional (mobil, sepeda 2)','D',500000],['Nabung haji','D',500000],['Dana darurat (sakit)','D',500000]];
 if(!S){const T=D.reduce((a,d)=>a+d[2],0);let u=0;S={pos:D.map((d,i)=>{const p=i<D.length-1?Math.round(d[2]/T*10000)/100:Math.round((100-u)*100)/100;u+=p;return{n:d[0],k:d[1]==='C'?'Cash':'Digital',p}}),inc:[],exp:[],plan:{'2026-11':Object.fromEntries(D.map(d=>[d[0],d[2]]))},note:{},url:''}}
-S.url=S.url||'https://script.google.com/macros/s/AKfycbykUU-nzmXskPM_LU5IlHrpkVXj1hu3PQADrLMQMHHqsHhxktNhkSqsp9G69k2UVDY/exec';
+{const B='https://script.google.com/macros/s/',NEW=B+'AKfycbxeLbXTLLZniPUkfdnVVHI_ohQdKKp-ngwZsGDOqkeiz8gxLNkgvcIuhWBwx0S0kjGY/exec',OLD=[B+'AKfycbz_Hy59oLUPQFzKJC-z0syteEQNG6TWtOb7RkeE9TZ03xxe220yOLXQtrWvIAYgNEcK/exec',B+'AKfycbykUU-nzmXskPM_LU5IlHrpkVXj1hu3PQADrLMQMHHqsHhxktNhkSqsp9G69k2UVDY/exec'];if(!S.url||OLD.includes(S.url))S.url=NEW}
 const num=v=>+String(v).replace(/\D/g,'')||0;
 document.addEventListener('input',e=>{if(e.target.classList.contains('rp')){const n=num(e.target.value);e.target.value=n?n.toLocaleString('id-ID'):''}});
-function save(){try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}render()}
+const BLN=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'],bln=m=>BLN[+m.slice(5,7)-1]+' '+m.slice(0,4);
+function save(){let ok=true;try{localStorage.setItem(K,JSON.stringify(S));if(localStorage.getItem(K)===null)ok=false}catch(e){ok=false}
+ if(!ok)toast('Belum tersimpan permanen: browser memblokir penyimpanan. Buka lewat Chrome/Safari biasa, bukan mode privat.');
+ try{render()}catch(e){console.error(e)}return ok}
 function toast(m){const t=$('#toast');t.textContent=m;t.style.display='block';setTimeout(()=>t.style.display='none',2200)}
 const tabs=[['hm','Beranda','🏠'],['in','Masuk','⬇️'],['ac','Keluar','⬆️'],['pl','Rencana','📋'],['ev','Evaluasi','📊'],['st','Setelan','⚙️']];
 $('#nav').innerHTML=tabs.map(t=>`<a href="#" data-t="${t[0]}"><i>${t[2]}</i>${t[1]}</a>`).join('');
@@ -99,9 +102,9 @@ const inI=x=>(x.b||x.t.slice(0,7))===M();
 $('#bulan').onchange=render;$('#ij').oninput=prev;
 function prev(){const j=num($('#ij').value);$('#prev').innerHTML=j?S.pos.map(p=>`${esc(p.n)}: <b>${R(j*p.p/100)}</b>`).join(' · '):''}
 function addInc(){const t=$('#it').value,j=num($('#ij').value);if(!t||!j)return toast('Isi tanggal & jumlah');
- const a={};S.pos.forEach(p=>a[p.n]=Math.round(j*p.p/100));S.inc.push({id:Date.now(),t,o:$('#io').value,b:$('#ib').value,k:$('#ik').value,s:$('#is').value,j,a});$('#ij').value='';$('#is').value='';prev();save();toast('Tersimpan')}
+ const a={};S.pos.forEach(p=>a[p.n]=Math.round(j*p.p/100));S.inc.push({id:Date.now(),t,o:$('#io').value,b:$('#ib').value,k:$('#ik').value,s:$('#is').value,j,a});$('#ij').value='';$('#is').value='';prev();const bm=S.inc[S.inc.length-1].b||t.slice(0,7);$('#bulan').value=bm;if(save())toast('Pemasukan tersimpan di bulan '+bln(bm))}
 function addExp(){const t=$('#et').value,j=num($('#ej').value);if(!t||!j)return toast('Isi tanggal & jumlah');
- S.exp.push({id:Date.now(),t,o:$('#eo').value,p:$('#ep').value,j,n:$('#en').value});$('#ej').value='';$('#en').value='';save();toast('Tersimpan')}
+ S.exp.push({id:Date.now(),t,o:$('#eo').value,p:$('#ep').value,j,n:$('#en').value});$('#ej').value='';$('#en').value='';$('#bulan').value=t.slice(0,7);if(save())toast('Pengeluaran tersimpan di bulan '+bln(t.slice(0,7)))}
 function del(k,id){if(confirm('Hapus data ini?')){S[k]=S[k].filter(x=>x.id!==id);save()}}
 function plan(p){return(S.plan[M()]||{})[p]||0}
 function setPlan(p,v){(S.plan[M()]=S.plan[M()]||{})[p]=num(v);save()}
@@ -151,6 +154,6 @@ const body=()=>{const{url,...d}=S;return d};
 async function push(){if(!S.url)return toast('Isi URL Web App dulu');toast('Mengirim...');
  try{const r=await fetch(S.url,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({data:body()})});const j=await r.json();toast(j.ok?'Terkirim ke Sheet ✔':'Gagal: '+j.error)}catch(e){toast('Gagal terhubung')}}
 async function pull(){if(!S.url)return toast('Isi URL Web App dulu');if(!confirm('Data di HP ini akan diganti dengan data Sheet. Lanjut?'))return;
- try{const r=await fetch(S.url);const d=await r.json();if(d.error)return toast(d.error);S={...d,url:S.url};save();toast('Data diambil ✔')}catch(e){toast('Gagal terhubung')}}
+ try{const r=await fetch(S.url);const d=await r.json();if(d.error)return toast(d.error);d.pos.forEach(p=>{p.k=p.k||(S.pos.find(x=>x.n===p.n)||{}).k||'Cash'});S={...d,url:S.url};save();toast('Data diambil ✔')}catch(e){toast('Gagal terhubung')}}
 render();document.querySelector('nav a').classList.add('on');
 </script></body></html>
