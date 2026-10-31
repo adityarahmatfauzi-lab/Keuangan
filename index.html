@@ -26,6 +26,7 @@ nav a{flex:1;text-align:center;padding:11px 0;font-size:12px;color:var(--m)}nav 
 <section id="in" class="on">
  <div class="card"><h2>Input Pemasukan Harian</h2>
   <div class="row"><div><label>Tanggal</label><input type="date" id="it"></div><div><label>Oleh</label><select id="io"><option>Aditya</option><option>Istri</option></select></div></div>
+  <label>Dihitung untuk bulan <small>(otomatis bulan depan jika tanggal 20 ke atas)</small></label><input type="month" id="ib">
   <label>Jenis Pemasukan</label><select id="ik"><option>Utama</option><option>Lainnya</option><option>Bonus</option></select>
   <label>Sumber</label><input id="is" placeholder="Gaji, usaha ikan asin, dll">
   <label>Jumlah (Rp)</label><input id="ij" class="rp" inputmode="numeric" placeholder="Rp 0">
@@ -68,7 +69,7 @@ sum=(a,f)=>a.reduce((x,y)=>x+f(y),0),M=()=>$('#bulan').value,inM=x=>x.t.slice(0,
 let S;try{S=JSON.parse(localStorage.getItem(K))}catch(e){}
 const D=[['Ibu','C',400000],['Ayah','C',150000],['Aditya','C',600000],['Sabun muka','C',80000],['Seli','C',300000],['Jajan','C',500000],['Potong rambut','C',50000],['Bensin','C',1000000],['Tol','C',200000],['Zakat','C',100000],['Mobil','D',6600000],['BPJS','D',300000],['Pulsa','D',200000],['YouTube','D',50000],['Susu','D',100000],['Koperasi & arisan','D',325000],['Operasional (mobil, sepeda 2)','D',500000],['Nabung haji','D',500000],['Dana darurat (sakit)','D',500000]];
 if(!S){const T=D.reduce((a,d)=>a+d[2],0);let u=0;S={pos:D.map((d,i)=>{const p=i<D.length-1?Math.round(d[2]/T*10000)/100:Math.round((100-u)*100)/100;u+=p;return{n:d[0],k:d[1]==='C'?'Cash':'Digital',p}}),inc:[],exp:[],plan:{'2026-11':Object.fromEntries(D.map(d=>[d[0],d[2]]))},note:{},url:''}}
-S.url=S.url||'https://script.google.com/macros/s/AKfycbz_Hy59oLUPQFzKJC-z0syteEQNG6TWtOb7RkeE9TZ03xxe220yOLXQtrWvIAYgNEcK/exec';
+S.url=S.url||'https://script.google.com/macros/s/AKfycbykUU-nzmXskPM_LU5IlHrpkVXj1hu3PQADrLMQMHHqsHhxktNhkSqsp9G69k2UVDY/exec';
 const num=v=>+String(v).replace(/\D/g,'')||0;
 document.addEventListener('input',e=>{if(e.target.classList.contains('rp')){const n=num(e.target.value);e.target.value=n?n.toLocaleString('id-ID'):''}});
 function save(){try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}render()}
@@ -77,10 +78,13 @@ const tabs=[['in','Pemasukan'],['ac','Actual'],['pl','Rencana'],['ev','Evaluasi'
 $('#nav').innerHTML=tabs.map(t=>`<a href="#" data-t="${t[0]}">${t[1]}</a>`).join('');
 $('#nav').onclick=e=>{const t=e.target.dataset.t;if(!t)return;e.preventDefault();document.querySelectorAll('section').forEach(s=>s.classList.toggle('on',s.id===t));document.querySelectorAll('nav a').forEach(a=>a.classList.toggle('on',a.dataset.t===t));render()};
 const today=new Date().toISOString().slice(0,10);$('#bulan').value=today.slice(0,7);$('#it').value=$('#et').value=today;
+function setIb(){const t=$('#it').value;if(!t)return;let[y,m,d]=t.split('-').map(Number);if(d>=20){m++;if(m>12){m=1;y++}}$('#ib').value=y+'-'+String(m).padStart(2,'0')}
+$('#it').onchange=setIb;setIb();
+const inI=x=>(x.b||x.t.slice(0,7))===M();
 $('#bulan').onchange=render;$('#ij').oninput=prev;
 function prev(){const j=num($('#ij').value);$('#prev').innerHTML=j?S.pos.map(p=>`${esc(p.n)}: <b>${R(j*p.p/100)}</b>`).join(' · '):''}
 function addInc(){const t=$('#it').value,j=num($('#ij').value);if(!t||!j)return toast('Isi tanggal & jumlah');
- const a={};S.pos.forEach(p=>a[p.n]=Math.round(j*p.p/100));S.inc.push({id:Date.now(),t,o:$('#io').value,k:$('#ik').value,s:$('#is').value,j,a});$('#ij').value='';$('#is').value='';prev();save();toast('Tersimpan')}
+ const a={};S.pos.forEach(p=>a[p.n]=Math.round(j*p.p/100));S.inc.push({id:Date.now(),t,o:$('#io').value,b:$('#ib').value,k:$('#ik').value,s:$('#is').value,j,a});$('#ij').value='';$('#is').value='';prev();save();toast('Tersimpan')}
 function addExp(){const t=$('#et').value,j=num($('#ej').value);if(!t||!j)return toast('Isi tanggal & jumlah');
  S.exp.push({id:Date.now(),t,o:$('#eo').value,p:$('#ep').value,j,n:$('#en').value});$('#ej').value='';$('#en').value='';save();toast('Tersimpan')}
 function del(k,id){if(confirm('Hapus data ini?')){S[k]=S[k].filter(x=>x.id!==id);save()}}
@@ -91,14 +95,14 @@ function saveNote(){S.note[M()]=$('#note').value;save();toast('Catatan tersimpan
 function addPos(){const n=prompt('Nama pos baru?');if(n){S.pos.push({n,k:confirm('OK = Digital, Batal = Cash')?'Digital':'Cash',p:0});save()}}
 function setPos(i,k,v){S.pos[i][k]=k==='p'?+v||0:v;save()}
 function delPos(i){if(confirm('Hapus pos? Data lama pos ini tetap tersimpan.')){S.pos.splice(i,1);save()}}
-function list(k,id,f){const a=S[k].filter(inM).sort((x,y)=>y.t.localeCompare(x.t));$(id).innerHTML=a.length?a.map(f).join('')+`<div class="li"><b>Total</b><b>${R(sum(a,x=>x.j))}</b></div>`:'<small style="color:var(--m)">Belum ada data</small>'}
+function list(k,id,f){const a=S[k].filter(k==='inc'?inI:inM).sort((x,y)=>y.t.localeCompare(x.t));$(id).innerHTML=a.length?a.map(f).join('')+`<div class="li"><b>Total</b><b>${R(sum(a,x=>x.j))}</b></div>`:'<small style="color:var(--m)">Belum ada data</small>'}
 function render(){
  $('#ep').innerHTML=S.pos.map(p=>`<option>${esc(p.n)}</option>`).join('');
- list('inc','#il',i=>`<div class="li"><div><b>${R(i.j)}</b> · ${esc(i.s)||'-'}<small>${i.t} · ${esc(i.o)} · ${i.k||'Utama'}</small></div><button class="s" onclick="del('inc',${i.id})">✕</button></div>`);
+ list('inc','#il',i=>`<div class="li"><div><b>${R(i.j)}</b> · ${esc(i.s)||'-'}<small>${i.t} · ${esc(i.o)} · ${i.k||'Utama'}${i.b&&i.b!==i.t.slice(0,7)?' · untuk '+i.b:''}</small></div><button class="s" onclick="del('inc',${i.id})">✕</button></div>`);
  list('exp','#el',e=>`<div class="li"><div><b>${R(e.j)}</b> · ${esc(e.p)}<small>${e.t} · ${esc(e.o)} ${esc(e.n)}</small></div><button class="s" onclick="del('exp',${e.id})">✕</button></div>`);
  $('#pr').innerHTML=S.pos.map(p=>`<div class="li"><span>${esc(p.n)}</span><input class="rp" inputmode="numeric" placeholder="Rp 0" style="width:150px" value="${plan(p.n)?plan(p.n).toLocaleString('id-ID'):''}" onchange="setPlan('${esc(p.n)}',this.value)"></div>`).join('');
  $('#pt').textContent=R(sum(S.pos,p=>plan(p.n)));
- const inc=S.inc.filter(inM),ex=S.exp.filter(inM),pi=sum(inc,i=>i.j),pe=sum(ex,e=>e.j),pp=sum(S.pos,p=>plan(p.n));
+ const inc=S.inc.filter(inI),ex=S.exp.filter(inM),pi=sum(inc,i=>i.j),pe=sum(ex,e=>e.j),pp=sum(S.pos,p=>plan(p.n));
  const ik=k=>sum(inc.filter(i=>(i.k||'Utama')===k),i=>i.j),grp=k=>{const ps=S.pos.filter(p=>p.k===k);return[sum(ps,p=>plan(p.n)),sum(ex.filter(e=>ps.some(p=>p.n===e.p)),e=>e.j)]},gc=grp('Cash'),gd=grp('Digital');
  $('#sum').innerHTML=[['Total Pemasukan',pi],['Pemasukan Utama',ik('Utama')],['Pemasukan Lainnya',ik('Lainnya')],['Pemasukan Bonus',ik('Bonus')],['Rencana Pengeluaran',pp],['Pengeluaran Actual',pe],['Saldo (pemasukan − actual)',pi-pe],['Cash: rencana',gc[0]],['Cash: actual',gc[1]],['Digital: rencana',gd[0]],['Digital: actual',gd[1]],['Pemasukan − rencana',pi-pp]].map(x=>`<div><span>${x[0]}</span><b>${R(x[1])}</b></div>`).join('');
  $('#evl').innerHTML=S.pos.map(p=>{const pl=plan(p.n),al=sum(inc,i=>i.a[p.n]||0),ak=sum(ex.filter(e=>e.p===p.n),e=>e.j),pct=pl?ak/pl*100:0,c=!pl&&ak?'over':pct>100?'over':pct>80?'warn':'ok',
